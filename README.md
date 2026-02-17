@@ -1,15 +1,14 @@
 
 ## Requirements
 
-- Python runtime 3.9 to 3.12 (3.13 is not supported)
-- 
+- [Python 3.12](https://www.python.org/downloads/release/python-3120/)
+- [fabric-cicd](https://microsoft.github.io/fabric-cicd/0.1.30/)
+
 
 ## Repository Structure
 
 | File/Folder       | Purpose                                                      |
 |-------------------|--------------------------------------------------------------|
-| `.bpa/`           | Best practice analyzer configuration                         |
-| `.devcontainer/`  | Dev Container setup for consistent development environments  |
 | `.github/`        | GitHub Actions workflows and GitHub-specific files           |
 | `.vscode/`        | VS Code settings and recommended extensions                  |
 | `scripts/`        | Helper scripts for automation and deployment                 |
@@ -17,18 +16,6 @@
 | `.gitignore`      | Specifies files/folders to be ignored by Git                 |
 
 This repository is organized to help you manage your Power BI project efficiently, especially if you are new to Git, GitHub, and automation with GitHub Actions. Here is a quick guide to the main folders and files you will find:
-
-### `.bpa/`
-
-This folder contains configuration files for static analysis tools such as the [Tabular Editor Best Practice Analyzer](https://docs.tabulareditor.com/te2/Best-Practice-Analyzer-Improvements.html) and [Power BI Inspector (v2)](https://github.com/NatVanG/PBI-InspectorV2). These community tools enable automated testing of Power BI semantic models, reports, and other Microsoft Fabric artifacts against a set of shared best practice rules. By maintaining rule definitions and settings here, you can ensure consistent quality checks and enforce standards across your project using these tools in local development or CI/CD pipelines.
-
-### `.devcontainer/`
-
-Contains configuration files for [Dev Containers](https://containers.dev/), which allow you to develop inside a consistent, pre-configured environment. This is useful for onboarding and ensuring everyone uses the same tools and dependencies.
-
-The provided devcontainer definition at `.devcontainer/devcontainer.json` is preconfigured with recommended vscode extensions as well as the [`fabric-cicd`](https://microsoft.github.io/fabric-cicd/) library and necessary runtimes.
-
-A devcontainer environment can be launched locally with Docker installed, or in the cloud via [GitHub Codespaces](https://github.com/codespaces) - a repository opened in a GitHub Codespace can be edited either from vscode on your desktop or in the browser at <https://github.dev>.
 
 ### `.github/`
 
@@ -50,7 +37,13 @@ Contains settings and recommended extensions for [Visual Studio Code](https://co
 
 This folder includes helper scripts (such as Python or shell scripts) that automate common tasks, like deployment or data processing. You can run these scripts to simplify repetitive work.
 
+#### `deploy.py`
+
 This repository contains `scripts/deploy.py`, a Python deployment script that uses [`fabric-cicd`](https://microsoft.github.io/fabric-cicd/).
+
+#### `scripts/.bpa/`
+
+This folder contains configuration files for static analysis tools such as the [Tabular Editor Best Practice Analyzer](https://docs.tabulareditor.com/te2/Best-Practice-Analyzer-Improvements.html) and [Power BI Inspector (v2)](https://github.com/NatVanG/PBI-InspectorV2). These community tools enable automated testing of Power BI semantic models, reports, and other Microsoft Fabric artifacts against a set of shared best practice rules. By maintaining rule definitions and settings here, you can ensure consistent quality checks and enforce standards across your project using these tools in local development or CI/CD pipelines.
 
 ### `src/`
 
