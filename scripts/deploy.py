@@ -4,7 +4,7 @@ from azure.identity import InteractiveBrowserCredential, AzureCliCredential
 from fabric_cicd import FabricWorkspace, publish_all_items
 
 parser = argparse.ArgumentParser(description="Deploy PBIP to Fabric")
-parser.add_argument("--workspace_name", type=str, required=False, help="Target workspace ID", default="Workshop - Lab 2")
+parser.add_argument("--workspace_name", type=str, required=False, help="Target workspace Name", default="Workshop - Lab 2")
 parser.add_argument("--environment", type=str, default="DEV", help="Environment name")
 parser.add_argument("--spn-auth", type=bool, default=False, help="Use SPN authentication")
 args = parser.parse_args()
