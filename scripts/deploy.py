@@ -101,9 +101,9 @@ workspace_params = {
     "token_credential": credential,
 }
 
-target_workspace = FabricWorkspace(**workspace_params)
+print(f"Deployment environment: {resolved_environment}", flush=True)
+print(f"Target workspace: {resolved_workspace_name}", flush=True)
 
-print(f"Deployment environment: {resolved_environment}")
-print(f"Target workspace: {resolved_workspace_name}")
+target_workspace = FabricWorkspace(**workspace_params)
 
 publish_all_items(target_workspace)
