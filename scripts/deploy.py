@@ -103,4 +103,7 @@ workspace_params = {
 
 target_workspace = FabricWorkspace(**workspace_params)
 
+print(f"Deployment environment: {resolved_environment}")
+print(f"Target workspace: {resolved_workspace_name}")
+
 publish_all_items(target_workspace)
