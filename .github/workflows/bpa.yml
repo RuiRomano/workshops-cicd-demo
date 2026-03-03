@@ -24,7 +24,7 @@ jobs:
           id: cache-tools
           with:
             path: |
-              ./.bpa/_tools/
+              ./scripts/bpa/_tools/
             key: ${{ runner.os }}-tools
 
         - name: BPA Semantic Models
