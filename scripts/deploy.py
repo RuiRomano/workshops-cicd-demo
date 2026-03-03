@@ -60,8 +60,9 @@ def load_dotenv_from_repo_root() -> None:
 
 
 def resolve_workspace_name(explicit_workspace_name: str | None, environment_name: str | None) -> str:
-        if explicit_workspace_name:
-                return explicit_workspace_name
+        normalized_workspace_name = (explicit_workspace_name or "").strip()
+        if normalized_workspace_name:
+                return normalized_workspace_name
 
         normalized_environment = (environment_name or "").strip().upper()
 
