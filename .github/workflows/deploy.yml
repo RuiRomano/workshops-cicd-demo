@@ -4,6 +4,9 @@ on:
   push:
     branches:
       - main
+  pull_request:
+    branches:
+      - main
   workflow_dispatch:
     inputs:
       workspace:
@@ -19,29 +22,27 @@ on:
         options:
         - DEV
         - PRD
-  
-env:
-  environment_name: ${{ github.event.inputs.environment || 'PRD' }}
-  workspace_name: ${{ github.event.inputs.workspace || vars.workspace || 'Workshop - Lab 2' }}
 
 jobs:
 
   deploy:
     runs-on: ubuntu-latest
-    environment: ${{ github.event.inputs.environment || 'PRD' }}
+    environment: &environment_name ${{ github.event_name == 'workflow_dispatch' && inputs.environment || github.event_name == 'pull_request' && github.base_ref == 'main' && 'DEV' || github.event_name == 'push' && github.ref == 'refs/heads/main' && 'PRD' || 'DEV' }}
+    env:
+      environment_name: *environment_name
 
     steps:
       - name: Check out the code
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
 
       - name: Set up Python
         uses: actions/setup-python@v2
         with:
           python-version: "3.12"
 
-      - name: Install fabric-cicd
+      - name: Install Python dependencies
         run: |
-          python -m pip install fabric-cicd
+          python -m pip install -r requirements.txt
 
       - name: Azure Login
         uses: azure/login@v1
@@ -49,9 +50,8 @@ jobs:
           creds: ${{ secrets.AZURE_CREDENTIALS }}
           allow-no-subscriptions: true
 
-      - name: Run Deployment Script 
+      - name: Run Deployment Script
         run: >
           python scripts/deploy.py
           --spn-auth True
-          --workspace_name "$workspace_name"
-          --environment "$environment_name"          
+          --environment "${{ env.environment_name }}"
