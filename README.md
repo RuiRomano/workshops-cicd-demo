@@ -1,11 +1,9 @@
-# workshops-cicd-demo
 
-Sample repository to manage and deploy Power BI / Microsoft Fabric artifacts with GitHub Actions and `fabric-cicd`.
-
-## Prerequisites
+## Requirements
 
 - [Python 3.12](https://www.python.org/downloads/release/python-3120/)
 - [Azure CLI](https://learn.microsoft.com/cli/azure/install-azure-cli)
+- [fabric-cicd](https://microsoft.github.io/fabric-cicd/latest/)
 - Access to the target Microsoft Fabric workspaces
 
 ## Quick Start
@@ -149,7 +147,7 @@ This folder includes helper scripts (such as Python or shell scripts) that autom
 
 This repository contains `scripts/deploy.py`, a Python deployment script that uses [`fabric-cicd`](https://microsoft.github.io/fabric-cicd/).
 
-#### `scripts/bpa/`
+#### `scripts/.bpa/`
 
 This folder contains configuration files for static analysis tools such as the [Tabular Editor Best Practice Analyzer](https://docs.tabulareditor.com/te2/Best-Practice-Analyzer-Improvements.html) and [Power BI Inspector (v2)](https://github.com/NatVanG/PBI-InspectorV2). These community tools enable automated testing of Power BI semantic models, reports, and other Microsoft Fabric artifacts against a set of shared best practice rules. By maintaining rule definitions and settings here, you can ensure consistent quality checks and enforce standards across your project using these tools in local development or CI/CD pipelines.
 

@@ -4,5 +4,3 @@
 fabric_cicd.error.log
 
 scripts/bpa/_tools
-.env
-__pycache__/
