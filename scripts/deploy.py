@@ -82,7 +82,7 @@ parser.add_argument("--environment", type=str, default="DEV", help="Environment 
 parser.add_argument("--spn-auth", type=bool, default=False, help="Use SPN authentication")
 args = parser.parse_args()
 
-resolved_environment = (args.environment or "").strip().upper()
+resolved_environment = ((args.environment or "").strip().upper() or "DEV")
 resolved_workspace_name = resolve_workspace_name(args.workspace_name, resolved_environment)
 
 # Authentication (SPN or Interactive)
