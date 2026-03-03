@@ -2,7 +2,113 @@
 ## Requirements
 
 - [Python 3.12](https://www.python.org/downloads/release/python-3120/)
-- [fabric-cicd](https://microsoft.github.io/fabric-cicd/0.1.30/)
+- [Azure CLI](https://learn.microsoft.com/cli/azure/install-azure-cli)
+- [fabric-cicd](https://microsoft.github.io/fabric-cicd/latest/)
+- Access to the target Microsoft Fabric workspaces
+
+## Quick Start
+
+1. Install dependencies from the repository root:
+
+	```bash
+	python -m pip install -r requirements.txt
+	```
+
+2. (Optional) Create a `.env` file in repository root:
+
+	```dotenv
+	PBI_WORKSPACE_DEV=Workshop - Lab 2
+	PBI_WORKSPACE_PRD=Workshop - Production
+	```
+
+3. Run deployment to DEV environment (default authentication is interactive browser login):
+
+	```bash
+	python scripts/deploy.py
+	```
+
+4. (Advanced, optional) If you want to use Azure CLI authentication instead of browser-based login:
+
+	```bash
+	az login
+	python scripts/deploy.py --spn-auth True --environment DEV
+	```
+
+## First Deploy Checklist
+
+Use this checklist for a smooth first run:
+
+- [ ] You are in the repository root
+- [ ] `python --version` shows Python 3.12.x
+- [ ] `python -m pip install -r requirements.txt` completed successfully
+- [ ] (Optional) `.env` exists with `PBI_WORKSPACE_DEV` / `PBI_WORKSPACE_PRD`
+- [ ] Deployment command completed without errors
+
+Quick verification commands:
+
+```bash
+python --version
+python scripts/deploy.py --environment DEV
+```
+
+## Troubleshooting
+
+### `pip` missing (`No module named pip`)
+
+Use one of these options:
+
+```bash
+# Option 1 (preferred on Linux): install pip for Python 3 via OS package manager
+sudo apt-get install -y python3-pip
+python3 -m pip install -r requirements.txt
+```
+
+```bash
+# Option 2: bootstrap pip directly
+curl -sS https://bootstrap.pypa.io/get-pip.py -o /tmp/get-pip.py
+python3 /tmp/get-pip.py --user
+python3 -m pip install --user -r requirements.txt
+```
+
+### Azure CLI authentication (advanced)
+
+By default, `scripts/deploy.py` uses interactive authentication via the system browser.
+
+Use Azure CLI auth only when needed:
+
+```bash
+az login
+python3 scripts/deploy.py --spn-auth True --environment DEV
+```
+
+## Workspace Resolution Logic
+
+`scripts/deploy.py` resolves the target workspace in this order:
+
+1. `--workspace_name` (always highest priority)
+2. `PBI_WORKSPACE_<ENV>` from `.env` in current working directory
+3. `PBI_WORKSPACE_<ENV>` from `scripts/deploy.config`
+4. Fail due to missing configuration
+
+Examples:
+
+```bash
+# Deploy to PRD
+python3 scripts/deploy.py --environment PRD
+
+# Explicit override (takes precedence over environment mapping)
+python3 scripts/deploy.py --environment DEV --workspace_name "My Custom Workspace"
+
+# Advanced: use Azure CLI auth instead of system-browser interactive auth
+az login
+python3 scripts/deploy.py --spn-auth True --environment DEV
+```
+
+## CI/CD Behavior
+
+- Pull requests targeting `main` deploy with environment `DEV`
+- Pushes to `main` deploy with environment `PRD`
+- Manual runs (`workflow_dispatch`) use the selected environment input
 
 
 ## Repository Structure

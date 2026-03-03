@@ -5,96 +5,85 @@ Workspace resolution logic (in precedence order)
 ===============================================
 
 1) Explicit CLI override (highest priority)
-     - If `--workspace_name` is provided, that value is always used.
+    - If `--workspace_name` is provided, that value is always used.
 
-2) Environment-derived workspace via environment variables
-     - If `--workspace_name` is not provided and `--environment` is provided,
-         the script looks for `PBI_WORKSPACE_<ENV>` where `<ENV>` is the uppercased
-         environment name.
-     - Examples:
-         - `--environment PRD` -> reads `PBI_WORKSPACE_PRD`
-         - `--environment DEV` -> reads `PBI_WORKSPACE_DEV`
-     - If the variable exists and is non-empty, it is used.
+2) `.env` file in current working directory
+    - If `--workspace_name` is not provided, the script reads `.env` from CWD
+      and resolves `PBI_WORKSPACE_<ENV>`.
 
-3) Fallback dictionary in script
-     - If no environment is supplied and no `--workspace_name` is supplied,
-         the script falls back to a hard-coded dictionary maintained here.
-     - The default fallback environment key is `DEV`.
+3) `deploy.config` file alongside this script
+    - If CWD `.env` does not provide a value, the script reads
+      `scripts/deploy.config` (same format as `.env`) and resolves
+      `PBI_WORKSPACE_<ENV>`.
 
-4) Additional safe fallback
-     - If `--environment` is supplied but `PBI_WORKSPACE_<ENV>` is not defined,
-         the script will try the hard-coded dictionary for that environment key.
-     - If no mapping exists, execution fails with a clear error message.
-
-Optional .env support
-=====================
-
-- The script attempts to load an optional `.env` file from repository root
-        (one level above `scripts/`) using `python-dotenv`.
-- Existing process environment variables are not overridden by `.env` values.
-- Example keys in `.env`:
-    - `PBI_WORKSPACE_DEV=Workshop - Lab 2`
-    - `PBI_WORKSPACE_PRD=Workshop - Production`
+4) Fail due to missing configuration
+    - If no value is found in any source, execution fails with a clear error.
 """
 
 import argparse
-import os
 import sys
 from pathlib import Path
 from azure.identity import InteractiveBrowserCredential, AzureCliCredential
-from dotenv import load_dotenv
+from dotenv import dotenv_values
 from fabric_cicd import FabricWorkspace, publish_all_items
 
 
-FALLBACK_WORKSPACE_BY_ENV = {
-        "DEV": "Workshop - Lab 2 (DEV)",
-        "PRD": "Workshop - Lab 2",
-}
-DEFAULT_FALLBACK_ENV = "DEV"
+def _read_env_file(file_path: Path) -> dict[str, str]:
+    if not file_path.exists():
+        return {}
+
+    parsed_values = dotenv_values(file_path)
+    return {
+        key: value.strip()
+        for key, value in parsed_values.items()
+        if key and value and value.strip()
+    }
 
 
-def load_dotenv_from_repo_root() -> None:
-        repo_root = Path(__file__).resolve().parent.parent
-        dotenv_path = repo_root / ".env"
-        load_dotenv(dotenv_path=dotenv_path, override=False)
-
-
-def resolve_workspace_name(explicit_workspace_name: str | None, environment_name: str | None) -> str:
+def resolve_workspace_name(explicit_workspace_name: str | None, environment_name: str) -> str:
         normalized_workspace_name = (explicit_workspace_name or "").strip()
         if normalized_workspace_name:
                 return normalized_workspace_name
 
-        normalized_environment = (environment_name or "").strip().upper()
+        if not environment_name:
+            print(
+                "Unable to resolve workspace because environment is missing. "
+                "Provide --environment or set a default in argument parsing.",
+                file=sys.stderr,
+            )
+            sys.exit(1)
 
-        if normalized_environment:
-                env_var_name = f"PBI_WORKSPACE_{normalized_environment}"
-                workspace_name = os.getenv(env_var_name)
-                if workspace_name:
-                        return workspace_name
+        env_var_name = f"PBI_WORKSPACE_{environment_name}"
 
-                fallback_workspace_name = FALLBACK_WORKSPACE_BY_ENV.get(normalized_environment)
-                if fallback_workspace_name:
-                        return fallback_workspace_name
+        cwd_dotenv_path = Path.cwd() / ".env"
+        cwd_dotenv_values = _read_env_file(cwd_dotenv_path)
+        workspace_name = cwd_dotenv_values.get(env_var_name)
+        if workspace_name:
+            return workspace_name
 
-                print(
-                        f"Unable to resolve workspace for environment '{normalized_environment}'. "
-                        f"Set {env_var_name} or add '{normalized_environment}' to FALLBACK_WORKSPACE_BY_ENV.",
-                        file=sys.stderr,
-                )
-                sys.exit(1)
+        deploy_config_path = Path(__file__).resolve().with_name("deploy.config")
+        deploy_config_values = _read_env_file(deploy_config_path)
+        workspace_name = deploy_config_values.get(env_var_name)
+        if workspace_name:
+            return workspace_name
 
-        return FALLBACK_WORKSPACE_BY_ENV[DEFAULT_FALLBACK_ENV]
+        print(
+            f"Unable to resolve workspace for environment '{environment_name}'. "
+            f"Provide --workspace_name, or define {env_var_name} in "
+            f"{cwd_dotenv_path} or {deploy_config_path}.",
+            file=sys.stderr,
+        )
+        sys.exit(1)
 
 
 parser = argparse.ArgumentParser(description="Deploy PBIP to Fabric")
 parser.add_argument("--workspace_name", type=str, required=False, help="Target workspace name")
-parser.add_argument("--environment", type=str, required=False, help="Environment name")
+parser.add_argument("--environment", type=str, default="DEV", help="Environment name (default: DEV)")
 parser.add_argument("--spn-auth", type=bool, default=False, help="Use SPN authentication")
 args = parser.parse_args()
 
-load_dotenv_from_repo_root()
-resolved_workspace_name = resolve_workspace_name(args.workspace_name, args.environment)
-resolved_environment = args.environment or DEFAULT_FALLBACK_ENV
+resolved_environment = ((args.environment or "").strip().upper() or "DEV")
+resolved_workspace_name = resolve_workspace_name(args.workspace_name, resolved_environment)
 
 # Authentication (SPN or Interactive)
 
@@ -111,6 +100,9 @@ workspace_params = {
     "item_type_in_scope": ["SemanticModel", "Report"],
     "token_credential": credential,
 }
+
+print(f"Deployment environment: {resolved_environment}", flush=True)
+print(f"Target workspace: {resolved_workspace_name}", flush=True)
 
 target_workspace = FabricWorkspace(**workspace_params)
 
