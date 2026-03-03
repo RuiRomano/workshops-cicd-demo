@@ -55,4 +55,5 @@ jobs:
         run: >
           python scripts/deploy.py
           --spn-auth True
+          --workspace_name "${{ github.event_name == 'workflow_dispatch' && inputs.workspace || '' }}"
           --environment "${{ env.environment_name }}"
