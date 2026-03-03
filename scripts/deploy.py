@@ -28,9 +28,6 @@ from dotenv import dotenv_values
 from fabric_cicd import FabricWorkspace, publish_all_items
 
 
-DEFAULT_FALLBACK_ENV = "DEV"
-
-
 def _read_env_file(file_path: Path) -> dict[str, str]:
     if not file_path.exists():
         return {}
@@ -43,17 +40,20 @@ def _read_env_file(file_path: Path) -> dict[str, str]:
     }
 
 
-def resolve_workspace_name(explicit_workspace_name: str | None, environment_name: str | None) -> str:
+def resolve_workspace_name(explicit_workspace_name: str | None, environment_name: str) -> str:
         normalized_workspace_name = (explicit_workspace_name or "").strip()
         if normalized_workspace_name:
                 return normalized_workspace_name
 
-        normalized_environment = (environment_name or "").strip().upper()
+        if not environment_name:
+            print(
+                "Unable to resolve workspace because environment is missing. "
+                "Provide --environment or set a default in argument parsing.",
+                file=sys.stderr,
+            )
+            sys.exit(1)
 
-        if not normalized_environment:
-            normalized_environment = DEFAULT_FALLBACK_ENV
-
-        env_var_name = f"PBI_WORKSPACE_{normalized_environment}"
+        env_var_name = f"PBI_WORKSPACE_{environment_name}"
 
         cwd_dotenv_path = Path.cwd() / ".env"
         cwd_dotenv_values = _read_env_file(cwd_dotenv_path)
@@ -68,7 +68,7 @@ def resolve_workspace_name(explicit_workspace_name: str | None, environment_name
             return workspace_name
 
         print(
-            f"Unable to resolve workspace for environment '{normalized_environment}'. "
+            f"Unable to resolve workspace for environment '{environment_name}'. "
             f"Provide --workspace_name, or define {env_var_name} in "
             f"{cwd_dotenv_path} or {deploy_config_path}.",
             file=sys.stderr,
@@ -78,12 +78,12 @@ def resolve_workspace_name(explicit_workspace_name: str | None, environment_name
 
 parser = argparse.ArgumentParser(description="Deploy PBIP to Fabric")
 parser.add_argument("--workspace_name", type=str, required=False, help="Target workspace name")
-parser.add_argument("--environment", type=str, required=False, help="Environment name")
+parser.add_argument("--environment", type=str, default="DEV", help="Environment name (default: DEV)")
 parser.add_argument("--spn-auth", type=bool, default=False, help="Use SPN authentication")
 args = parser.parse_args()
 
-resolved_workspace_name = resolve_workspace_name(args.workspace_name, args.environment)
-resolved_environment = (args.environment or DEFAULT_FALLBACK_ENV).upper()
+resolved_environment = (args.environment or "").strip().upper()
+resolved_workspace_name = resolve_workspace_name(args.workspace_name, resolved_environment)
 
 # Authentication (SPN or Interactive)
 
