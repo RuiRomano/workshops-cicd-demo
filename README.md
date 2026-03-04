@@ -4,6 +4,7 @@
 - [Python 3.12](https://www.python.org/downloads/release/python-3120/)
 - [Azure CLI](https://learn.microsoft.com/cli/azure/install-azure-cli)
 - [fabric-cicd](https://microsoft.github.io/fabric-cicd/latest/)
+- [PowerShell](https://learn.microsoft.com/powershell/scripting/install/installing-powershell) (required to run `scripts/bpa/bpa.ps1`)
 - Access to the target Microsoft Fabric workspaces
 
 ## Quick Start
@@ -14,7 +15,7 @@
 	python -m pip install -r requirements.txt
 	```
 
-2. (Optional) Create a `.env` file in repository root:
+2. (Optional) Create a `.env` file in repository root from `.env.example`:
 
 	```dotenv
 	PBI_WORKSPACE_DEV=Workshop - Lab 2
@@ -33,6 +34,20 @@
 	az login
 	python scripts/deploy.py --spn-auth True --environment DEV
 	```
+
+## Run BPA Locally
+
+From the repository root, run:
+
+```bash
+pwsh -File scripts/bpa/bpa.ps1 -src @("src")
+```
+
+On Windows PowerShell (if `pwsh` is not available), use:
+
+```powershell
+powershell -File scripts\bpa\bpa.ps1 -src @("src")
+```
 
 ## First Deploy Checklist
 
