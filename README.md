@@ -15,7 +15,7 @@
 	python -m pip install -r requirements.txt
 	```
 
-2. (Optional) Create a `.env` file in repository root:
+2. (Optional) Create a `.env` file in repository root from `.env.example`:
 
 	```dotenv
 	PBI_WORKSPACE_DEV=Workshop - Lab 2
