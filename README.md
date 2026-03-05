@@ -1,10 +1,8 @@
 
 ## Requirements
 
-- [Python 3.12](https://www.python.org/downloads/release/python-3120/)
-- [Azure CLI](https://learn.microsoft.com/cli/azure/install-azure-cli)
+- [Python 3.12](https://apps.microsoft.com/detail/9ncvdn91xzqp)
 - [fabric-cicd](https://microsoft.github.io/fabric-cicd/latest/)
-- [PowerShell](https://learn.microsoft.com/powershell/scripting/install/installing-powershell) (required to run `scripts/bpa/bpa.ps1`)
 - Access to the target Microsoft Fabric workspaces
 
 ## Quick Start
@@ -13,6 +11,11 @@
 
 	```bash
 	python -m pip install -r requirements.txt
+	```
+	or
+
+	```
+	%USERPROFILE%\AppData\Local\Microsoft\WindowsApps\python3.12.exe -m pip install -r requirements.txt
 	```
 
 2. (Optional) Create a `.env` file in repository root from `.env.example`:
