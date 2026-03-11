@@ -55,12 +55,6 @@ def resolve_workspace_name(explicit_workspace_name: str | None, environment_name
 
         env_var_name = f"PBI_WORKSPACE_{environment_name}"
 
-        cwd_dotenv_path = Path.cwd() / ".env"
-        cwd_dotenv_values = _read_env_file(cwd_dotenv_path)
-        workspace_name = cwd_dotenv_values.get(env_var_name)
-        if workspace_name:
-            return workspace_name
-
         deploy_config_path = Path(__file__).resolve().with_name("deploy.config")
         deploy_config_values = _read_env_file(deploy_config_path)
         workspace_name = deploy_config_values.get(env_var_name)
@@ -70,7 +64,7 @@ def resolve_workspace_name(explicit_workspace_name: str | None, environment_name
         print(
             f"Unable to resolve workspace for environment '{environment_name}'. "
             f"Provide --workspace_name, or define {env_var_name} in "
-            f"{cwd_dotenv_path} or {deploy_config_path}.",
+            f"{deploy_config_path}.",
             file=sys.stderr,
         )
         sys.exit(1)

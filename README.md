@@ -3,7 +3,7 @@
 
 - Pull requests targeting `main` deploy with environment `DEV`
 - Pushes to `main` deploy with environment `PRD`
-- Manual runs (`workflow_dispatch`) use the selected environment input
+- Manual runs (`workflow_dispatch`) use the selected environment input, allowing to test deployment to specific workspace without changing the config
 
 ## Repository Structure
 
