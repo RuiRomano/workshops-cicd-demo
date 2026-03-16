@@ -1,7 +1,14 @@
 
 # Semantic model parameters (find & replace over TMDL M parameter expression)
 
-#find_replace:
+find_replace:
+    - find_value: expression\s+Environment\s*=\s*"(.*?)"
+      replace_value:
+          DEV: "DEV"
+          PRD: "PRD"
+      is_regex: "true" # use regex to find the expression parameter assignment
+      item_type: "SemanticModel" # filter on SemanticModel files
+      file_path: "**/expressions.tmdl"
 
 # Ensure default page per report (I used the same page name for all first pages)
 
@@ -12,12 +19,3 @@ key_value_replace:
           PRD: ReportSection6687c48ea8a9b7740002
       file_path: 
         - "Sales.Report/definition/pages/pages.json"
-
-find_replace:
-    - find_value: expression\s+Environment\s*=\s*"(.*?)"
-      replace_value:
-          DEV: "DEV"
-          PRD: "PRD"
-      is_regex: "true" # "<true|True>"
-      item_type: "SemanticModel" # filter on SemanticModel files
-      file_path: "**/expressions.tmdl"
