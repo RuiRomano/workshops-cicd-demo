@@ -5,32 +5,30 @@ on:
     branches:
       - main
     paths:
-      - 'src/**'  
+      - "src/**"
 
   pull_request:
     branches:
       - main
-  
+
   workflow_dispatch:
     inputs:
       workspace:
         type: string
         description: The name of the workspace to deploy to
         required: true
-        default: 'Workshop - Lab 2 (DEV)'
+        default: "Workshop - Lab 2 (DEV)"
       environment:
         type: choice
         description: The environment to deploy to
         required: true
-        default: 'DEV'
+        default: "DEV"
         options:
-        - DEV
-        - PRD
+          - DEV
+          - PRD
 
 jobs:
-
-  deploy:
-    if: github.actor != 'dependabot[bot]'
+  deploy:    
     runs-on: ubuntu-latest
     environment: &environment_name ${{ github.event_name == 'workflow_dispatch' && inputs.environment || github.event_name == 'pull_request' && github.base_ref == 'main' && 'DEV' || github.event_name == 'push' && github.ref == 'refs/heads/main' && 'PRD' || 'DEV' }}
     env:
